@@ -62,9 +62,60 @@
     );
   }
 
+  function initHeaderAutoHide() {
+    if (reduceMotion) return;
+    var header = document.querySelector(".site-header");
+    var nav = document.querySelector(".nav");
+    if (!header) return;
+
+    var lastY = window.pageYOffset;
+    var raf = null;
+    var HIDDEN = "is-header-hidden";
+    var T_DOWN = 12;
+    var T_UP = 8;
+    var AT_TOP = 16;
+
+    function isNavOpen() {
+      return nav && nav.classList.contains("is-open");
+    }
+
+    function setHidden(hide) {
+      if (isNavOpen()) {
+        header.classList.remove(HIDDEN);
+        return;
+      }
+      if (hide) header.classList.add(HIDDEN);
+      else header.classList.remove(HIDDEN);
+    }
+
+    function onScroll() {
+      if (raf !== null) return;
+      raf = window.requestAnimationFrame(function () {
+        raf = null;
+        var y = window.pageYOffset;
+        if (y < AT_TOP) {
+          setHidden(false);
+          lastY = y;
+          return;
+        }
+        var delta = y - lastY;
+        if (delta > T_DOWN) {
+          setHidden(true);
+        } else if (delta < -T_UP) {
+          setHidden(false);
+        }
+        lastY = y;
+      });
+    }
+
+    lastY = window.pageYOffset;
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+
   function initMobileNav() {
     var toggle = document.querySelector('.nav-toggle');
     var nav = document.querySelector('.nav');
+    var header = document.querySelector('.site-header');
     if (!toggle || !nav) return;
 
     var closeMenu = function () {
@@ -75,6 +126,7 @@
     };
 
     var openMenu = function () {
+      if (header) header.classList.remove('is-header-hidden');
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', 'Close menu');
       nav.classList.add('is-open');
@@ -104,11 +156,13 @@
     document.addEventListener("DOMContentLoaded", function () {
       initReveal();
       parallaxTilt();
+      initHeaderAutoHide();
       initMobileNav();
     });
   } else {
     initReveal();
     parallaxTilt();
+    initHeaderAutoHide();
     initMobileNav();
   }
 })();

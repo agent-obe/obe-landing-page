@@ -107,6 +107,13 @@ a:focus-visible {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid color-mix(in srgb, var(--edge) 40%, transparent);
+  transform: translateY(0);
+  transition: transform 0.3s var(--ease);
+}
+
+.site-header.is-header-hidden {
+  transform: translateY(-100%);
+  pointer-events: none;
 }
 
 .wordmark {
